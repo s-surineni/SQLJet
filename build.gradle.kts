@@ -1,10 +1,18 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("org.springframework.boot") version "2.5.4"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm") version "1.5.21"
     kotlin("plugin.spring") version "1.5.21"
+    application
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+}
+
+
+application {
+    mainClass.set("com.greatest.sqljet.SqlJetApplication")
 }
 
 group = "com.greatest"
@@ -32,4 +40,23 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+                "Main-Class" to "com.greatest.sqljet.SqlJetApplication"))
+    }
+}
+
+val shadowJar: ShadowJar by tasks
+shadowJar.apply {
+    manifest.attributes.apply {
+        put("Implementation-Title", project.name)
+        put("Implementation-Version", project.version)
+        put("Main-Class", "com.greatest.sqljet.SqlJetApplication")
+    }
+
+    baseName = project.name + "-all"
 }
